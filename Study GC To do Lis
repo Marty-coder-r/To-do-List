@@ -1,182 +1,182 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #FFF3E0;
-      color: #4E342E;
-      margin: 0;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffefdb; /* Warm light background */
+            color: #8a4b28; /* Warm brown text */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-    #todo {
-      max-width: 600px;
-      margin: auto;
-      background-color: #FFE0B2;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
 
-    h2 {
-      text-align: center;
-      color: #D84315;
-    }
+        h1 {
+            text-align: center;
+            color: #8a4b28;
+        }
 
-    input[type="text"], input[type="date"] {
-      padding: 10px;
-      margin-bottom: 10px;
-      margin-right: 5px;
-      border: 1px solid #FFB74D;
-      border-radius: 6px;
-      background-color: #FFF8E1;
-      color: #4E342E;
-      width: 58%;
-    }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
-    button {
-      padding: 10px 14px;
-      background-color: #FF8A65;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+        input[type="date"] {
+            width: 40%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
-    button:hover {
-      background-color: #E64A19;
-    }
+        button {
+            padding: 10px 15px;
+            background-color: #ffad5c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
+        button:hover {
+            background-color: #ff8c00;
+        }
 
-    li {
-      background-color: #FFF3E0;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: 1px solid #FFCC80;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      animation: fadeIn 0.5s ease;
-    }
+        .task-list {
+            margin-top: 20px;
+        }
 
-    .task-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-    }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
 
-    .meta {
-      font-size: 12px;
-      color: #6D4C41;
-      flex-basis: 100%;
-      margin-top: 5px;
-    }
+        .task-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
 
-    .completed span {
-      text-decoration: line-through;
-      color: #A1887F;
-    }
-
-    .icon-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
-      color: #D84315;
-      margin-left: 8px;
-    }
-
-    .icon-btn:hover {
-      color: #BF360C;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+        .task-item button {
+            background-color: #ff6347;
+        }
+    </style>
 </head>
 <body>
-  <div id="todo">
-    <h2>My To-Do List</h2>
-    <input type="text" id="taskInput" placeholder="Add a new task...">
-    <input type="date" id="dueDate">
-    <button onclick="addTask()">Add</button>
-    <ul id="taskList"></ul>
-  </div>
 
-  <script>
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    <div class="container">
+        <h1>To Do List</h1>
+        <input type="text" id="task-input" placeholder="Enter new task">
+        <input type="date" id="complete-by-date" placeholder="Complete by">
+        <button onclick="addTask()">Add Task</button>
 
-    function saveTasks() {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
+        <div class="task-list" id="task-list"></div>
+    </div>
 
-    function renderTasks() {
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
-      tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.className = task.completed ? "completed" : "";
+    <script>
+        // Load tasks from localStorage when the page is loaded
+        window.onload = function() {
+            loadTasks();
+        };
 
-        li.innerHTML = `
-          <div class="task-info">
-            <input type="checkbox" onchange="toggleComplete(${index})" ${task.completed ? "checked" : ""}>
-            <span>${task.text}</span>
-          </div>
-          <div class="meta">
-            Added: ${task.added}<br>
-            Complete by: ${task.due || "No deadline"}
-          </div>
-          <button class="icon-btn" onclick="removeTask(${index})" title="Delete">&#128465;</button>
-        `;
-        list.appendChild(li);
-      });
-    }
+        // Add new task
+        function addTask() {
+            let taskInput = document.getElementById('task-input');
+            let taskText = taskInput.value.trim();
+            let completeByDate = document.getElementById('complete-by-date').value;
 
-    function addTask() {
-      const input = document.getElementById("taskInput");
-      const due = document.getElementById("dueDate").value;
-      const text = input.value.trim();
-      if (!text) return;
+            if (taskText === "") return;
 
-      const now = new Date();
-      tasks.push({
-        text: text,
-        due: due,
-        added: now.toLocaleString(),
-        completed: false
-      });
+            let taskList = document.getElementById('task-list');
+            let taskItem = document.createElement('div');
+            taskItem.classList.add('task-item');
 
-      input.value = "";
-      document.getElementById("dueDate").value = "";
+            taskItem.innerHTML = `
+                <input type="checkbox" onclick="toggleTask(this)">
+                <span>${taskText}</span>
+                <span>Complete by: ${completeByDate}</span>
+                <button onclick="removeTask(this)">Remove</button>
+            `;
 
-      saveTasks();
-      renderTasks();
-    }
+            taskList.appendChild(taskItem);
+            taskInput.value = "";
+            document.getElementById('complete-by-date').value = "";
 
-    function toggleComplete(index) {
-      tasks[index].completed = !tasks[index].completed;
-      saveTasks();
-      renderTasks();
-    }
+            saveTasks();  // Save tasks to localStorage whenever a new one is added
+        }
 
-    function removeTask(index) {
-      tasks.splice(index, 1);
-      saveTasks();
-      renderTasks();
-    }
+        // Toggle task completion (line-through)
+        function toggleTask(checkbox) {
+            let taskItem = checkbox.parentElement;
+            if (checkbox.checked) {
+                taskItem.style.textDecoration = 'line-through';
+            } else {
+                taskItem.style.textDecoration = 'none';
+            }
 
-    renderTasks(); // Load on page start
-  </script>
+            saveTasks();  // Save tasks to localStorage after toggling
+        }
+
+        // Remove a task
+        function removeTask(button) {
+            let taskItem = button.parentElement;
+            taskItem.remove();
+            saveTasks();  // Save tasks to localStorage after removing
+        }
+
+        // Save all tasks to localStorage
+        function saveTasks() {
+            let tasks = [];
+            let taskItems = document.querySelectorAll('.task-item');
+
+            taskItems.forEach(item => {
+                let taskText = item.querySelector('span').innerText;
+                let taskChecked = item.querySelector('input').checked;
+                let taskDate = item.querySelectorAll('span')[1].innerText.replace('Complete by: ', '');
+                tasks.push({ text: taskText, checked: taskChecked, date: taskDate });
+            });
+
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // Save to localStorage
+        }
+
+        // Load tasks from localStorage
+        function loadTasks() {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            tasks.forEach(task => {
+                let taskList = document.getElementById('task-list');
+                let taskItem = document.createElement('div');
+                taskItem.classList.add('task-item');
+
+                taskItem.innerHTML = `
+                    <input type="checkbox" onclick="toggleTask(this)" ${task.checked ? 'checked' : ''}>
+                    <span>${task.text}</span>
+                    <span>Complete by: ${task.date}</span>
+                    <button onclick="removeTask(this)">Remove</button>
+                `;
+
+                taskList.appendChild(taskItem);
+            });
+        }
+    </script>
+
 </body>
 </html>
