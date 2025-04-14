@@ -38,6 +38,14 @@
             border-radius: 4px;
         }
 
+        input[type="date"] {
+            width: 40%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
         button {
             padding: 10px 15px;
             background-color: #ffad5c;
@@ -66,6 +74,10 @@
         .task-item input[type="checkbox"] {
             margin-right: 10px;
         }
+
+        .task-item button {
+            background-color: #ff6347;
+        }
     </style>
 </head>
 <body>
@@ -73,15 +85,23 @@
     <div class="container">
         <h1>To Do List</h1>
         <input type="text" id="task-input" placeholder="Enter new task">
+        <input type="date" id="complete-by-date" placeholder="Complete by">
         <button onclick="addTask()">Add Task</button>
 
         <div class="task-list" id="task-list"></div>
     </div>
 
     <script>
+        // Load tasks from localStorage when the page is loaded
+        window.onload = function() {
+            loadTasks();
+        };
+
+        // Add new task
         function addTask() {
             let taskInput = document.getElementById('task-input');
             let taskText = taskInput.value.trim();
+            let completeByDate = document.getElementById('complete-by-date').value;
 
             if (taskText === "") return;
 
@@ -92,13 +112,18 @@
             taskItem.innerHTML = `
                 <input type="checkbox" onclick="toggleTask(this)">
                 <span>${taskText}</span>
+                <span>Complete by: ${completeByDate}</span>
                 <button onclick="removeTask(this)">Remove</button>
             `;
 
             taskList.appendChild(taskItem);
             taskInput.value = "";
+            document.getElementById('complete-by-date').value = "";
+
+            saveTasks();  // Save tasks to localStorage whenever a new one is added
         }
 
+        // Toggle task completion (line-through)
         function toggleTask(checkbox) {
             let taskItem = checkbox.parentElement;
             if (checkbox.checked) {
@@ -106,11 +131,50 @@
             } else {
                 taskItem.style.textDecoration = 'none';
             }
+
+            saveTasks();  // Save tasks to localStorage after toggling
         }
 
+        // Remove a task
         function removeTask(button) {
             let taskItem = button.parentElement;
             taskItem.remove();
+            saveTasks();  // Save tasks to localStorage after removing
+        }
+
+        // Save all tasks to localStorage
+        function saveTasks() {
+            let tasks = [];
+            let taskItems = document.querySelectorAll('.task-item');
+
+            taskItems.forEach(item => {
+                let taskText = item.querySelector('span').innerText;
+                let taskChecked = item.querySelector('input').checked;
+                let taskDate = item.querySelectorAll('span')[1].innerText.replace('Complete by: ', '');
+                tasks.push({ text: taskText, checked: taskChecked, date: taskDate });
+            });
+
+            localStorage.setItem('tasks', JSON.stringify(tasks)); // Save to localStorage
+        }
+
+        // Load tasks from localStorage
+        function loadTasks() {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            tasks.forEach(task => {
+                let taskList = document.getElementById('task-list');
+                let taskItem = document.createElement('div');
+                taskItem.classList.add('task-item');
+
+                taskItem.innerHTML = `
+                    <input type="checkbox" onclick="toggleTask(this)" ${task.checked ? 'checked' : ''}>
+                    <span>${task.text}</span>
+                    <span>Complete by: ${task.date}</span>
+                    <button onclick="removeTask(this)">Remove</button>
+                `;
+
+                taskList.appendChild(taskItem);
+            });
         }
     </script>
 
